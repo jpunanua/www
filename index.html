@@ -1,0 +1,466 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Haz tu consulta</title>
+
+    <script type="text/javascript" charset="utf-8" src="cordova.js"></script>
+    <link rel="stylesheet" href="http://code.jquery.com/mobile/1.3.1/jquery.mobile-1.3.1.min.css" />
+  
+    <script>
+    
+    var pictureSource;   // picture source
+    var destinationType; // sets the format of returned value
+
+    // Wait for device API libraries to load
+    //
+    document.addEventListener("deviceready",onDeviceReady,false);
+
+    // device APIs are available
+    
+    function onDeviceReady() {
+
+       if (parseFloat(window.device.version) >= 7.0) {
+         $('#home').addClass("ios7");
+         $('#ver-ideas').addClass("ios7");
+         $('#nueva-idea').addClass("ios7");
+       //$('#home').addClass("ios7");
+        }
+
+        pictureSource=navigator.camera.PictureSourceType;
+        destinationType=navigator.camera.DestinationType;
+
+        openFB.init({appId: '834951006536042'});
+        var fbToken = localStorage.getItem("userId");
+        if (fbToken!==null){
+            //var name = localStorage.getItem("name");
+            
+            getInfoFB();
+            
+            //$.mobile.changePage("#home");
+        }
+        //alert(fbToken);
+        
+        //app.initialize();
+        $( "#registro" ).click(function() {
+            $.mobile.changePage("#new_user");
+        });
+        $( "#nav_home" ).click(function() {
+            $.mobile.changePage("#inicio");
+         });
+                                                      
+         $( "#nav_logout" ).click(function() {
+            logout();
+         });
+         db = window.openDatabase("eddb", "1.0", "Espacio Deco DB", 200000);
+         populateDB();
+    }
+    </script>
+    <style>
+        #demo-page #left-panel.ui-panel {
+            width: 15em;
+        }
+    #demo-page #left-panel.ui-panel-closed {
+        width: 0;
+    }
+    #demo-page .ui-panel-position-left.ui-panel-display-reveal {
+        left: 0;
+    }
+    #demo-page .ui-panel-content-wrap-position-left.ui-panel-content-wrap-open,
+    .ui-panel-dismiss-position-left.ui-panel-dismiss-open {
+        left: 15em;
+        right: -15em;
+    }
+    #demo-page .ui-panel-animate.ui-panel-content-wrap-position-left.ui-panel-content-wrap-open.ui-panel-content-wrap-display-reveal {
+        left: 0;
+        right: 0;
+        -webkit-transform: translate3d(15em,0,0);
+        -moz-transform: translate3d(15em,0,0);
+        transform: translate3d(15em,0,0);
+    }
+    /* Combined listview collapsible menu. */
+    /* Unset negative margin bottom on the listviews. */
+    #left-panel .ui-panel-inner > .ui-listview { margin-bottom: 0; }
+    /* Unset top and bottom margin on collapsible set. */
+    #left-panel .ui-collapsible-set { margin: 0; }
+    /* The first collapsible contains the collapsible set. Make it fit exactly in the collapsible content. */
+    #left-panel .ui-panel-inner > .ui-collapsible > .ui-collapsible-content { padding-top: 0; padding-bottom: 0;  border-bottom: none; }
+    /* Remove border top if a collapsible comes after a listview. */
+    #left-panel .ui-panel-inner  > .ui-collapsible > .ui-collapsible-heading .ui-btn,
+    #left-panel .ui-collapsible.ui-first-child .ui-collapsible-heading .ui-btn { border-top: none; }
+    /* Give the first collapsible heading the same padding, i.e. same height, as the list items. */
+    #left-panel .ui-collapsible-heading .ui-btn-inner { padding: .7em 40px .7em 15px; }
+    /* Give the other collapsible headings the same padding and font-size as the list divider. */
+    #left-panel .ui-collapsible-set .ui-collapsible-heading .ui-btn-inner { padding: .5em 40px .5em 15px; font-size: 14px; }
+    /* Styling of the close button in both panels. */
+    #demo-page .ui-panel-inner > .ui-listview .ui-first-child {
+        background: #eee;
+    }
+    /* Reveal menu shadow on top of the list items */
+    #demo-page .ui-panel-display-reveal {
+        -webkit-box-shadow: none;
+        -moz-box-shadow: none;
+        box-shadow: none;
+    }
+    #demo-page .ui-panel-content-wrap-position-left {
+        -webkit-box-shadow: -5px 0px 5px rgba(0,0,0,.15);
+        -moz-box-shadow: -5px 0px 5px rgba(0,0,0,.15);
+        box-shadow: -5px 0px 5px rgba(0,0,0,.15);
+    }
+    /* Use the ui-body class of your page theme (ui-body-d in this demo) to set a background image.
+     This class will be added to the content wrapper, while the page itself gets the same background
+     as the panel before opening the panel. */
+    #demo-page .ui-body-d {
+        background-image: url(../../_assets/img/bg-pattern.png);
+        background-repeat: repeat-x;
+        background-position: left bottom;
+    }
+    /* Styling of the page contents */
+    .article p {
+        margin: 0 0 1em;
+        line-height: 1.5;
+    }
+    .article p img {
+        max-width: 100%;
+    }
+    .article p:first-child {
+        text-align: center;
+    }
+    .article small {
+        display: block;
+        font-size: 75%;
+        color: #c0c0c0;
+    }
+    .article p:last-child {
+        text-align: right;
+    }
+    .article a.ui-btn {
+        margin-right: 2em;
+        -webkit-border-radius: .4em;
+        border-radius: .4em;
+    }
+    @media all and (min-width:769px) {
+        .article {
+            max-width: 994px;
+            margin: 0 auto;
+            padding-top: 4em;
+            -webkit-column-count: 2;
+            -moz-column-count: 2;
+            column-count: 2;
+            -webkit-column-gap: 2em;
+            -moz-column-gap: 2em;
+            column-gap: 2em;
+        }
+        /* Fix for issue with buttons and form elements
+         if CSS columns are used on a page with a panel. */
+        .article a.ui-btn {
+            -webkit-transform: translate3d(0,0,0);
+        }
+    }
+ 
+</style>
+    <style>
+        body {
+            -webkit-font-smoothing: antialiased;
+            font: normal 15px/1.5 "Helvetica Neue", Helvetica, Arial, sans-serif;
+            color: #232525;
+            padding-top:70px;
+        }
+    
+    #slides {
+        display: none
+    }
+    
+    #slides .slidesjs-navigation {
+        margin-top:3px;
+    }
+    
+    #slides .slidesjs-previous {
+        margin-right: 5px;
+        float: left;
+    }
+    
+    #slides .slidesjs-next {
+        margin-right: 5px;
+        float: left;
+    }
+    
+    .slidesjs-pagination {
+        margin: 6px 0 0;
+        float: right;
+        list-style: none;
+    }
+    
+    .slidesjs-pagination li {
+        float: left;
+        margin: 0 1px;
+    }
+    
+    .slidesjs-pagination li a {
+        display: block;
+        width: 13px;
+        height: 0;
+        padding-top: 13px;
+        background-image: url(img/pagination.png);
+        background-position: 0 0;
+        float: left;
+        overflow: hidden;
+    }
+    
+    .slidesjs-pagination li a.active,
+    .slidesjs-pagination li a:hover.active {
+        background-position: 0 -13px
+    }
+    
+    .slidesjs-pagination li a:hover {
+        background-position: 0 -26px
+    }
+    
+    #slides a:link,
+    #slides a:visited {
+        color: #333
+    }
+    
+    #slides a:hover,
+    #slides a:active {
+        color: #9e2020
+    }
+    
+    .navbar {
+        overflow: hidden
+    }
+    </style>
+    <!-- End SlidesJS Optional-->
+    
+    <!-- SlidesJS Required: These styles are required if you'd like a responsive slideshow -->
+    <style>
+        #slides {
+            display: none
+        }
+    
+    .container {
+        margin: 0 auto
+    }
+    
+    /* For tablets & smart phones */
+    @media (max-width: 767px) {
+        body {
+            padding-left: 20px;
+            padding-right: 20px;
+        }
+        .container {
+            width: auto
+        }
+    }
+    
+    /* For smartphones */
+    @media (max-width: 480px) {
+        .container {
+            width: auto
+        }
+    }
+    
+    /* For smaller displays like laptops */
+    @media (min-width: 768px) and (max-width: 979px) {
+        .container {
+            width: 724px
+        }
+    }
+    
+    /* For larger displays */
+    @media (min-width: 1200px) {
+        .container {
+            width: 1170px
+        }
+    }
+    
+    .ios7
+{
+    padding-top: 20px !important;
+}
+
+    .left-ios7
+{
+    padding-top: 15px !important;
+}
+    </style>
+  </head>
+  <body>
+      <div data-role="page" id="inicio" style ="background: transparent url(img/eclectic-living-room.jpg) no-repeat  center center;"  >
+          
+          <div data-role="header">
+              <h1>Espacio<strong>Deco</strong></h1>
+              
+          </div>
+          
+          <div data-role="content" >
+              
+              <form id="formulario"   >
+                  <input  value="facebook" type="button" data-theme="b" onclick="loginFB()"  >
+                      <p style="margin-top:20px;"></p>
+                      <input name="user" id="user" placeholder="Usuario"  type="text" style="width: 30%;" >
+                      <input type="password" id="passw" name="passw"  placeholder="Password">
+                      <input data-inline="true" value="Iniciar" type="button" data-theme="b" id="enviar" onclick="$.mobile.changePage('#home')">
+                      <input data-inline="true" value="Registro" type="button" data-theme="e" id="registro">
+
+                         
+             </form>
+              
+          </div>
+       
+      </div>
+      <div data-url="home" data-role="page" id="home"   >
+          <div data-role="header"  data-theme="c" data-position="fixed" data-fullscreen="true">
+              
+             <div data-role="navbar" data-iconpos="left" id='nav-header' >
+                 <ul>
+                    <li><a href="#left-panel" data-icon="bars" data-iconpos="notext" data-shadow="false" data-iconshadow="false"><img border="0" src="img/logo-espaciodeco.png" alt="Logo, Facebook" style="float:left;display:inline;max-width: 50%;"/></a></li>
+                </ul>
+            </div><!-- /navbar -->
+              <!--h1>Home</h1>
+              <a href="#left-panel" data-icon="bars" data-iconpos="notext" data-shadow="false" data-iconshadow="false">Menu</a-->
+          </div><!-- /header -->
+         <div data-role="content" style="padding: 3px;" >
+             <div class="container">
+                 <div id="slides">
+                     <img src="img/livingroom-ChicDeco.jpg" alt="">
+                     <img src="img/eclectic-living-room.jpg" alt="">
+                     <img src="img/green-streeped-room.jpg" alt="">
+                     <img src="img/transitional-kitchen.jpg" alt="">
+                      <img src="img/comedor-verano-junto-a-piscina-summer-dining-room-ft-ChicDeco.jpg" alt="">
+                     
+                  </div>
+             </div>
+          </div><!-- /content -->
+          <div data-role="panel" id="left-panel" data-theme="c">
+              <ul data-role="listview" data-theme="d">
+                  <li data-icon="delete"><a href="#" data-rel="close">Close</a></li>
+                  <li data-role="list-divider">Home</li>
+                  <li><a href="#nueva-idea" >Envia Idea</a></li>
+                  <li><a href="#ver-ideas" >ver tus Ideas</a></li>
+              </ul>
+          </div><!-- /panel -->
+          <div data-role="footer" data-position="fixed" data-theme="c">
+                <div data-role="navbar">
+                    <ul>
+                        <li><a href="#nueva-idea" data-icon="grid">Enviar Idea</a></li>
+                        <li><a href="http://www.espaciodeco.com" data-icon="star">Espacio deco</a></li>
+                        <li><a href="#ver-ideas" data-icon="gear">Mis ideas</a></li>
+                    </ul>
+                </div><!-- /navbar -->
+          </div><!-- /footer -->
+    
+      </div>
+      <div data-url="nueva-idea" data-role="page" id="nueva-idea" data-theme="d">
+          <div data-role="header"  data-theme="c" data-position="fixed" data-fullscreen="true">
+              
+             <div data-role="navbar" data-iconpos="left" id='nav-header' >
+                 <ul>
+                    <li><a href="#left-panel" data-icon="bars" data-iconpos="notext" data-shadow="false" data-iconshadow="false"><img border="0" src="img/logo-espaciodeco.png" alt="Logo, Facebook" style="float:left;display:inline;max-width: 50%;"/></a></li>
+                </ul>
+            </div><!-- /navbar -->
+              <!--h1>Home</h1>
+              <a href="#left-panel" data-icon="bars" data-iconpos="notext" data-shadow="false" data-iconshadow="false">Menu</a-->
+          </div><!-- /header -->
+          <div data-role="content">
+              <input  value="Saca una foto" type="button" data-theme="b" onclick="capturePhoto();"  >
+              <input  value="O usa una que ya tenías" type="button" data-theme="e" onclick="getPhoto(pictureSource.PHOTOLIBRARY);"  >
+              <p style="margin-top:20px;"><img style="display:none;" id="largeImage" src="" width="80" height="80" /></p>
+              <input name="firstname" id="titulo" placeholder='Ejemplo de titular: "Necesito ayuda para cocina" o "Nuestro patio"'  type="text"  >
+              <textarea cols="40" rows="8" data-mini="true" placeholder="Escribe aquí tu consulta" id="pregunta"></textarea>
+              <input type="button" data-theme="b" id="btnSubmit" value="Manda tu pregunta" onclick="uploadPhoto();"  >
+              
+          </div><!-- /content -->
+          <div data-role="panel" id="left-panel" data-theme="c">
+              <ul data-role="listview" data-theme="d">
+                  <li data-icon="delete"><a href="#" data-rel="close">Close</a></li>
+                  <li><a href="#home" data-rel="back">Home</a></li>
+                  <li data-role="list-divider">Envia Idea</li>
+                  <li><a href="#ver-ideas" >ver tus Ideas</a></li>
+              </ul>
+          </div><!-- /panel -->
+             <div data-role="footer" data-position="fixed" data-theme="c">
+                <div data-role="navbar" >
+                    <ul>
+                        <li><a href="#nueva-idea" data-icon="grid">Enviar Idea</a></li>
+                        <li><a href="http://www.espaciodeco.com" data-icon="star">Espacio deco</a></li>
+                        <li><a href="#ver-ideas" data-icon="gear">Mis ideas</a></li>
+                    </ul>
+                </div><!-- /navbar -->
+          </div><!-- /footer -->
+      </div>
+      <div data-url="ver-ideas" data-role="page" id="ver-ideas" data-theme="d" style="padding: 0 0 30px 0;">
+          <div data-role="header"  data-theme="c" data-position="fixed" data-fullscreen="true">
+              
+             <div data-role="navbar" data-iconpos="left" id='nav-header' >
+                 <ul>
+                    <li><a href="#left-panel" data-icon="bars" data-iconpos="notext" data-shadow="false" data-iconshadow="false"><img border="0" src="img/logo-espaciodeco.png" alt="Logo, Facebook" style="float:left;display:inline;max-width: 50%;"/></a></li>
+                </ul>
+            </div><!-- /navbar -->
+              <!--h1>Home</h1>
+              <a href="#left-panel" data-icon="bars" data-iconpos="notext" data-shadow="false" data-iconshadow="false">Menu</a-->
+          </div><!-- /header -->
+          <div data-role="content">
+              <ul id="listQuestions" data-role="listview">
+                  
+              </ul>
+          </div><!-- /content -->
+          
+         
+          <div data-role="panel" id="left-panel" data-theme="c">
+              <ul data-role="listview" data-theme="d">
+                  <li data-icon="delete"><a href="#" data-rel="close">Close</a></li>
+                  <li><a href="#home" >Home</a></li>
+                  <li><a href="#nueva-idea" >Envia Idea</a></li>
+                  <li data-role="list-divider">ver tus Ideas</li>
+              </ul>
+          </div><!-- /panel -->
+             <div data-role="footer" data-position="fixed" data-theme="c">
+                <div data-role="navbar">
+                    <ul>
+                        <li><a href="#nueva-idea" data-icon="grid">Enviar Idea</a></li>
+                        <li><a href="http://www.espaciodeco.com" data-icon="star">Espacio deco</a></li>
+                        <li><a href="#ver-ideas" data-icon="gear">Mis ideas</a></li>
+                    </ul>
+                </div><!-- /navbar -->
+          </div><!-- /footer -->
+          
+      </div>
+     <!-- <br/><br/>
+    <button onclick="capturePhoto();">Saca una foto</button> <br>
+    <button onclick="getPhoto(pictureSource.PHOTOLIBRARY);">O usa una que ya tenías</button><br>
+    <img style="display:none;" id="largeImage" src="" />
+    <input type="text" id="titulo" placeholder='Ejemplo de titular: "Necesito ayuda para cocina" o "Nuestro patio"' name="firstname"><br>
+    <textarea placeholder="Escribe aquí tu consulta" id="pregunta"></textarea><br>
+    <input type="button" id="btnSubmit" value="Preguntar" onclick="uploadPhoto();">-->
+    
+    <script src="js/jquery-1.11.1.min.js"></script>
+    <script type="text/javascript" src="js/openfb.js"></script>
+   
+    <script src="http://code.jquery.com/mobile/1.3.1/jquery.mobile-1.3.1.min.js"></script>
+    <script src="js/jquery.slides.min.js"></script>
+    <script src="js/db.js"></script>
+    <script src="js/question.js"></script>
+    <script>
+      
+          
+          $("#home").on("pageshow",function(){
+                        $('#slides').slidesjs({
+                                              width: 940,
+                                              height: 1280,
+                                              navigation: false
+                                              });
+                        
+                        });
+          $("#ver-ideas").on("pageshow",function(){
+                            getQuestionList();
+                    });
+                        
+    </script>
+
+    
+ 
+  </body>
+</html>
